@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prathyusha Gogineni · TPM · Anthropic</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sand:#F5F0E8;--sand-dark:#EDE8DF;--cream:#FAF8F4;
+  --ink:#1A1612;--ink-light:#3D3830;--muted:#7A7468;
+  --accent:#C17F3E;--accent-light:#E8C99A;--accent-pale:#F5ECD8;
+  --rule:#D4CCBF;--claude:#DA7756;--claude-pale:#F9EDE7;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+@media print{
+  body{background:white!important;padding:0!important}
+  .page{box-shadow:none!important;max-width:100%!important}
+  .toolbar{display:none!important}
+  .exp-block{break-inside:avoid}
+  .section-block{break-inside:avoid}
+}
+body{background:var(--sand-dark);font-family:var(--sans);color:var(--ink);min-height:100vh;padding:0 0 6rem;font-size:13px;line-height:1.6}
+
+/* ── Toolbar ── */
+.toolbar{
+  position:sticky;top:0;z-index:100;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.6rem 2rem;
+  gap:1rem;
+}
+.toolbar-title{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:0.05em}
+.toolbar-right{display:flex;align-items:center;gap:0.75rem}
+.tb-btn{
+  background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);
+  font-family:var(--sans);font-size:11px;font-weight:500;padding:5px 14px;cursor:pointer;
+  letter-spacing:0.04em;transition:all 0.15s;border-radius:2px;
+}
+.tb-btn:hover{background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.4)}
+.tb-btn.active{background:var(--claude);border-color:var(--claude);color:white}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.15)}
+
+/* ── Theme switcher dot ── */
+.theme-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,0.3);transition:transform 0.15s}
+.theme-dot:hover{transform:scale(1.2)}
+
+/* ── Page ── */
+.page{
+  max-width:860px;margin:2rem auto 0;
+  background:var(--cream);
+  box-shadow:0 8px 60px rgba(0,0,0,0.14),0 2px 12px rgba(0,0,0,0.06);
+  position:relative;overflow:hidden;
+  opacity:0;transform:translateY(16px);
+  animation:fadeUp 0.5s 0.1s ease forwards;
+}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── Animated corner ── */
+.corner{
+  position:absolute;top:0;right:0;width:140px;height:140px;
+  background:var(--accent-pale);clip-path:polygon(100% 0,0 0,100% 100%);
+  transition:background 0.4s;
+}
+
+/* ── Header ── */
+.header{padding:2.5rem 3rem 0;position:relative}
+.header-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--claude-pale);border:1px solid var(--accent-light);
+  color:var(--claude);font-size:10px;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-bottom:0.5rem;
+  animation:slideIn 0.4s 0.3s ease both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.tag::before{content:'';width:5px;height:5px;background:var(--claude);border-radius:50%}
+.name{
+  font-family:var(--serif);font-size:3rem;font-weight:400;
+  letter-spacing:-0.02em;color:var(--ink);line-height:1;margin-bottom:0.75rem;
+  animation:fadeUp 0.5s 0.2s ease both;
+}
+.contacts{display:flex;flex-wrap:wrap;gap:0.2rem 1.2rem;animation:fadeUp 0.5s 0.35s ease both}
+.ci{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.ci svg{opacity:0.45;flex-shrink:0}
+
+/* ── Metrics ── */
+.metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--rule);margin-top:1.5rem;background:var(--sand);
+  animation:fadeUp 0.5s 0.4s ease both;
+}
+.metric{padding:0.875rem 1.25rem;border-right:1px solid var(--rule);cursor:default;transition:background 0.2s}
+.metric:last-child{border-right:none}
+.metric:hover{background:var(--accent-pale)}
+.metric-num{font-family:var(--serif);font-size:1.4rem;color:var(--ink);line-height:1;margin-bottom:2px;transition:color 0.2s}
+.metric:hover .metric-num{color:var(--claude)}
+.metric-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:500;line-height:1.3}
+
+/* ── Body ── */
+.body{display:grid;grid-template-columns:1fr 230px;animation:fadeUp 0.5s 0.45s ease both}
+.main{padding:2rem 2.5rem 2.5rem 3rem;border-right:1px solid var(--rule)}
+.sidebar{padding:2rem 2rem 2.5rem 1.75rem;background:var(--sand)}
+
+/* ── Section label ── */
+.section-label{
+  font-size:9px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:0.75rem;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--rule)}
+
+/* ── Summary ── */
+.summary{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--rule)}
+.summary p{font-size:12px;line-height:1.8;color:var(--ink-light);font-weight:300}
+.summary p strong{font-weight:500;color:var(--ink)}
+
+/* ── Experience ── */
+.exp-block{margin-bottom:1.25rem;opacity:0;transform:translateY(8px);transition:opacity 0.4s,transform 0.4s}
+.exp-block.visible{opacity:1;transform:translateY(0)}
+.exp-block:last-child{margin-bottom:0}
+.company-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px}
+.company{font-family:var(--serif);font-size:1rem;color:var(--ink)}
+.dates{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.role-title{font-size:10.5px;font-weight:500;color:var(--claude);letter-spacing:0.02em;margin-bottom:0.5rem}
+.sub-role{
+  font-size:10px;font-weight:500;color:var(--muted);font-style:italic;
+  margin:0.65rem 0 0.35rem;display:flex;align-items:center;gap:6px;
+}
+.sub-role::before{content:'';width:3px;height:3px;background:var(--accent);border-radius:50%}
+.bullets{list-style:none}
+.bullets li{
+  font-size:11px;line-height:1.65;color:var(--ink-light);
+  padding-left:1rem;position:relative;margin-bottom:0.3rem;font-weight:300;
+}
+.bullets li::before{content:'—';position:absolute;left:0;color:var(--rule)}
+.bullets li strong{font-weight:500;color:var(--ink)}
+
+/* ── Highlight mode ── */
+body.highlight-mode .bullets li{opacity:0.3;transition:opacity 0.2s}
+body.highlight-mode .bullets li.hl{opacity:1}
+body.highlight-mode .bullets li:hover{opacity:1;cursor:pointer}
+
+.exp-divider{border:none;border-top:1px dashed var(--rule);margin:1.1rem 0}
+
+/* ── Sidebar ── */
+.sidebar-section{margin-bottom:1.5rem}
+.skill-group{margin-bottom:0.875rem}
+.sgt{font-size:9.5px;font-weight:500;color:var(--ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.skill-list{display:flex;flex-wrap:wrap;gap:3px}
+.pill{
+  font-size:9.5px;color:var(--ink-light);background:var(--cream);
+  border:1px solid var(--rule);padding:2px 7px;border-radius:2px;
+  transition:all 0.15s;cursor:default;
+}
+.pill:hover{border-color:var(--accent-light);background:var(--accent-pale);color:var(--accent)}
+.pill.accent{background:var(--accent-pale);border-color:var(--accent-light);color:var(--accent);font-weight:500}
+
+/* ── Why box ── */
+.why-box{
+  background:var(--claude-pale);border:1px solid var(--accent-light);
+  border-left:3px solid var(--claude);padding:0.8rem 0.9rem;margin-bottom:1.5rem;border-radius:0;
+  transition:border-left-color 0.3s;
+}
+.why-box:hover{border-left-color:var(--accent)}
+.why-label{font-size:8.5px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--claude);margin-bottom:4px}
+.why-text{font-size:10.5px;line-height:1.65;color:var(--ink-light);font-weight:300;font-style:italic}
+
+/* ── Edu ── */
+.edu-block{margin-bottom:0.65rem}
+.edu-degree{font-size:11px;font-weight:500;color:var(--ink);line-height:1.3}
+.edu-school{font-size:10px;color:var(--muted)}
+.edu-year{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+
+/* ── Progress bars (impact vis) ── */
+.impact-bar{margin-bottom:0.6rem}
+.impact-label{display:flex;justify-content:space-between;margin-bottom:3px}
+.impact-label span:first-child{font-size:10px;color:var(--ink-light)}
+.impact-label span:last-child{font-family:var(--mono);font-size:9.5px;color:var(--claude);font-weight:500}
+.bar-track{height:3px;background:var(--rule);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:var(--claude);border-radius:2px;width:0;transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+
+/* ── Themes ── */
+body.dark{
+  --sand:#1E1C18;--sand-dark:#161410;--cream:#242018;
+  --ink:#F0EBE0;--ink-light:#C8C2B5;--muted:#8A8478;
+  --rule:#3A3730;--accent-pale:#2A2218;--accent-light:#5A3E20;
+  --claude-pale:#2A1E18;
+  background:#161410;
+}
+body.dark .page{box-shadow:0 8px 60px rgba(0,0,0,0.5)}
+body.dark .pill{background:var(--sand)}
+body.dark .summary p{color:var(--ink-light)}
+</style>
+</head>
+<body>
+
+<!-- ── Toolbar ── -->
+<div class="toolbar">
+  <span class="toolbar-title">prathyusha_gogineni_tpm_anthropic.html</span>
+  <div class="toolbar-right">
+    <button class="tb-btn" id="btn-all" onclick="setFilter('all')">All experience</button>
+    <button class="tb-btn" id="btn-ai" onclick="setFilter('ai')">AI/ML only</button>
+    <button class="tb-btn" id="btn-launch" onclick="setFilter('launch')">Launches only</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-impact" onclick="toggleImpact()">Impact view</button>
+    <div class="tb-sep"></div>
+    <div class="theme-dot" style="background:#F5F0E8" title="Light" onclick="setTheme('light')"></div>
+    <div class="theme-dot" style="background:#2C2A25" title="Dark" onclick="setTheme('dark')"></div>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="window.print()">⌘ Print PDF</button>
+  </div>
+</div>
+
+<!-- ── Page ── -->
+<div class="page" id="page">
+  <div class="corner" id="corner"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-inner">
+      <div>
+        <div class="tag">Technical Program Manager · Launches</div>
+        <h1 class="name">Prathyusha<br>Gogineni</h1>
+        <div class="contacts">
+          <span class="ci"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>San Francisco, CA</span>
+          <span class="ci"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>(415) 645-3373</span>
+          <span class="ci"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>prathyushagogineni86@gmail.com</span>
+          <span class="ci"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>linkedin.com/in/prathyusha-gogineni</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric" title="12+ years across Apple, Cisco, PwC">
+        <div class="metric-num">12+</div>
+        <div class="metric-label">Years TPM<br>experience</div>
+      </div>
+      <div class="metric" title="18 orgs coordinated per program at Cisco">
+        <div class="metric-num">18</div>
+        <div class="metric-label">Orgs per<br>launch cycle</div>
+      </div>
+      <div class="metric" title="Apple Retail POS across 530 stores, 27 countries">
+        <div class="metric-num">530</div>
+        <div class="metric-label">Stores · 27 countries<br>release scope</div>
+      </div>
+      <div class="metric" title="Revenue driven from Cisco AI/ML NFI programs">
+        <div class="metric-num">$157M</div>
+        <div class="metric-label">Revenue from<br>launched programs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- Summary -->
+      <div class="summary section-block">
+        <div class="section-label">Profile</div>
+        <p>TPM specializing in <strong>end-to-end launch coordination for AI/ML platforms</strong> — from intake through production release. At Cisco I own monthly and point-release cadences across 18 organizations including Engineering, Product, Finance, and Legal. At Apple I drove releases across four OS surfaces deployed to 530 stores in 27 countries, underpinning <strong>$199B in annual payment volume</strong>. I engage at the technical level, sequencing dependencies and resolving upstream/downstream conflicts without losing pace. Deeply committed to Anthropic's mission: building AI that is safe and reliably beneficial isn't a differentiator — it's the only version worth building.</p>
+      </div>
+
+      <!-- Impact view (hidden by default) -->
+      <div id="impact-view" style="display:none;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--rule)">
+        <div class="section-label">Impact at a glance</div>
+        <div class="impact-bar"><div class="impact-label"><span>Post-release defect reduction</span><span>40%</span></div><div class="bar-track"><div class="bar-fill" data-w="40"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>Sprint velocity improvement</span><span>30%</span></div><div class="bar-track"><div class="bar-fill" data-w="30"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>Execution visibility gain</span><span>45%</span></div><div class="bar-track"><div class="bar-fill" data-w="45"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>Dependency latency reduction</span><span>20%</span></div><div class="bar-track"><div class="bar-fill" data-w="20"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>Revenue from AI launches</span><span>$157M</span></div><div class="bar-track"><div class="bar-fill" data-w="100" style="background:var(--accent)"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>User engagement lift</span><span>25%</span></div><div class="bar-track"><div class="bar-fill" data-w="25"></div></div></div>
+        <div class="impact-bar"><div class="impact-label"><span>Apple payment volume underpinned</span><span>$199B</span></div><div class="bar-track"><div class="bar-fill" data-w="100" style="background:var(--accent)"></div></div></div>
+      </div>
+
+      <div class="section-label">Experience</div>
+
+      <!-- Cisco -->
+      <div class="exp-block" data-tags="ai,launch">
+        <div class="company-row">
+          <span class="company">Cisco Systems</span>
+          <span class="dates">Apr 2023 – Present</span>
+        </div>
+        <div class="role-title">Technical Program Manager · San Jose, CA</div>
+        <div class="sub-role">Commerce Product Management & Engineering · Jan 2026–Present</div>
+        <ul class="bullets">
+          <li data-tags="launch">Owned scope, schedule, and risk for <strong>3 high-visibility commerce programs</strong> across Salesforce and Commerce Workspace; cut cross-team dependency latency by <strong>20%</strong> through standardized executive reporting.</li>
+          <li data-tags="launch">Led Operational Technology automation program — converting labor-intensive commerce workflows into <strong>scalable automated pipelines</strong> across the org.</li>
+        </ul>
+        <div class="sub-role">Connected Engineering & AI Transformation · Apr 2023–Jan 2026</div>
+        <ul class="bullets">
+          <li data-tags="ai,launch">Owned <strong>release management for AI/ML client platforms</strong> on monthly + point-release cadences — coordinating platform/infra alignment across <strong>18 organizations</strong>, ensuring zero upstream/downstream impact at each cycle.</li>
+          <li data-tags="ai">Partnered on <strong>in-house AI tooling from intake through launch</strong> — coordinating cross-functional readiness for AI products serving employees and business partners across the full lifecycle.</li>
+          <li data-tags="ai,launch">Drove NFI for AI-driven discovery and personalization models — <strong>25% user engagement increase</strong>, <strong>$157M in new revenue</strong>.</li>
+          <li data-tags="launch">Scaled release operations for <strong>18,000+ enterprise users</strong> across 16 Agile teams in 3 regions — cut post-release defects by <strong>40%</strong>, shipped 12 epics and 60+ features in a single quarter.</li>
+          <li data-tags="launch">Implemented Agile/SAFe across 16 global teams — <strong>30% sprint velocity increase</strong>; Rally → Jira migration improved execution visibility by 45%.</li>
+        </ul>
+      </div>
+
+      <hr class="exp-divider">
+
+      <!-- Apple -->
+      <div class="exp-block" data-tags="launch">
+        <div class="company-row">
+          <span class="company">Apple Inc.</span>
+          <span class="dates">Nov 2018 – Apr 2023</span>
+        </div>
+        <div class="role-title">Program Manager & Technical Specialist · Cupertino, CA</div>
+        <ul class="bullets">
+          <li data-tags="launch">Designed UX and CMS for <strong>Web, iOS, iPadOS, and macOS</strong> — deployed to <strong>530 stores in 27 countries</strong>, underpinning <strong>$199B in annual payment volume</strong>; managed distinct API contracts and release cadences across four OS surfaces concurrently.</li>
+          <li data-tags="launch">Led cross-functional launch readiness reviews — owned milestone sign-off, risk gates, and deployment criteria across IS&T, AppleCare, and Retail; advised Creative Directors and VPs on cross-platform tradeoffs.</li>
+          <li data-tags="launch">Ran device operations processing <strong>1,200 devices/day</strong> across a 600-person warehouse — sustained <strong>95% TAT</strong> globally via release governance covering intake, triage, QA, and deployment.</li>
+        </ul>
+      </div>
+
+      <hr class="exp-divider">
+
+      <!-- PwC -->
+      <div class="exp-block" data-tags="launch">
+        <div class="company-row">
+          <span class="company">PwC</span>
+          <span class="dates">Sep 2012 – Oct 2017</span>
+        </div>
+        <div class="role-title">Program Manager · Multiple Clients</div>
+        <ul class="bullets">
+          <li data-tags="launch">Directed <strong>5+ global cross-functional programs</strong> end-to-end — cut delivery errors by 30%, embedded KPI and root-cause frameworks across engineering orgs.</li>
+          <li data-tags="launch">Launched modular content platform for <strong>United Airlines</strong> enabling localization across 20+ regions — increased personalized content reach by <strong>45%</strong>.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="why-box">
+        <div class="why-label">Why Anthropic</div>
+        <p class="why-text">I've watched Cambridge Analytica, COVID misinformation, and harm to children and women unfold on platforms that scaled faster than they asked hard questions. Anthropic asks those questions first. That's not common, and it matters to me.</p>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-label">Core skills</div>
+        <div class="skill-group">
+          <div class="sgt">Launch & release</div>
+          <div class="skill-list">
+            <span class="pill accent">End-to-end launch ownership</span>
+            <span class="pill accent">Release management</span>
+            <span class="pill">NFI / NPI</span>
+            <span class="pill">Dependency management</span>
+            <span class="pill">Upstream/downstream risk</span>
+            <span class="pill">Release governance</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <div class="sgt">AI/ML programs</div>
+          <div class="skill-list">
+            <span class="pill accent">AI product launches</span>
+            <span class="pill accent">Intake-to-production</span>
+            <span class="pill">ML platform coordination</span>
+            <span class="pill">In-house AI tooling</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <div class="sgt">Cross-functional leadership</div>
+          <div class="skill-list">
+            <span class="pill">18-org coordination</span>
+            <span class="pill">Executive communication</span>
+            <span class="pill">Platform/Infra alignment</span>
+            <span class="pill">Stakeholder management</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <div class="sgt">Agile & governance</div>
+          <div class="skill-list">
+            <span class="pill">Agile / SAFe</span>
+            <span class="pill">PI Planning</span>
+            <span class="pill">OKR alignment</span>
+            <span class="pill">Jira · Jira Align</span>
+            <span class="pill">Confluence · Salesforce</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <div class="sgt">Technical depth</div>
+          <div class="skill-list">
+            <span class="pill">iOS · iPadOS · macOS · Web</span>
+            <span class="pill">API contracts</span>
+            <span class="pill">SIT/BAT/UAT/E2E QA</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-label">Education</div>
+        <div class="edu-block">
+          <div class="edu-degree">M.S. International Affairs</div>
+          <div class="edu-school">Northeastern University</div>
+          <div class="edu-year">2011</div>
+        </div>
+        <div class="edu-block">
+          <div class="edu-degree">B.S. Computer Science</div>
+          <div class="edu-school">Acharya Nagarjuna University</div>
+          <div class="edu-year">2007</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-label">Location</div>
+        <p style="font-size:11px;color:var(--muted);line-height:1.7">San Francisco, CA<br>Open to onsite in SF Bay Area</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let currentFilter = 'all';
+let impactOpen = false;
+
+function setFilter(f) {
+  currentFilter = f;
+  ['all','ai','launch'].forEach(k => {
+    document.getElementById('btn-'+k).classList.toggle('active', k === f);
+  });
+  document.querySelectorAll('.exp-block').forEach(block => {
+    const tags = (block.dataset.tags || '').split(',');
+    const show = f === 'all' || tags.includes(f);
+    block.style.opacity = show ? '1' : '0.18';
+    block.style.transform = show ? 'translateY(0)' : 'translateY(4px)';
+    block.style.transition = 'opacity 0.3s, transform 0.3s';
+  });
+  if (f !== 'all') {
+    document.querySelectorAll('.bullets li').forEach(li => {
+      const tags = (li.dataset.tags || '').split(',');
+      li.style.opacity = tags.includes(f) ? '1' : '0.25';
+      li.style.transition = 'opacity 0.25s';
+    });
+  } else {
+    document.querySelectorAll('.bullets li').forEach(li => { li.style.opacity = '1'; });
+  }
+}
+
+function toggleImpact() {
+  impactOpen = !impactOpen;
+  const el = document.getElementById('impact-view');
+  const btn = document.getElementById('btn-impact');
+  el.style.display = impactOpen ? 'block' : 'none';
+  btn.classList.toggle('active', impactOpen);
+  if (impactOpen) {
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.w + '%';
+      });
+    }, 60);
+  } else {
+    document.querySelectorAll('.bar-fill').forEach(bar => { bar.style.width = '0'; });
+  }
+}
+
+function setTheme(t) {
+  document.body.classList.toggle('dark', t === 'dark');
+}
+
+// Scroll-triggered reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.exp-block').forEach(el => observer.observe(el));
+
+// Metric hover tooltips are native via title attr — done
+</script>
+</body>
+</html>
